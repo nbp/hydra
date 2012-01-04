@@ -64,11 +64,11 @@ in
           let release = import ./release.nix {
               nixpkgs = pkgs.path;
               hydraSrc = {
-                outPath = pkgs.fetchgit {
-                  url = ./.;
-                  rev = "master";
-                };
-                gitTag = "master";
+                outPath =
+                  pkgs.runCommand "hydra.tar" {} ''
+                    ${pkgs.git}/bin/git archive --remote ${./.} --prefix=hydra/  -o $out HEAD
+                  '';
+                gitTag = "HEAD";
                 revCount = 0;
               };
             };
