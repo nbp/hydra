@@ -66,7 +66,7 @@ foreach my $project ($db->resultset('Projects')->all) {
             foreach my $system (@systems) {
                 my @recentBuilds = $job->builds->search(
                     { finished => 1
-                    , buildStatus => 6 # == failed (with result)
+                    #, buildStatus => 6 # == failed (with result)
                     , system => $system->system
                     },
                     { join => 'resultInfo'
