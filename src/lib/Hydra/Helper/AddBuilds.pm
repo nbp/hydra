@@ -336,7 +336,7 @@ sub fetchInputGit {
         ("git", "fetch", "origin", $branch));
     die "Error fetching latest change git repo at `$uri':\n$stderr" unless $res;
     (my $res, $stdout, $stderr) = captureStdoutStderr(600,
-        ("git", "checkout", "origin/$branch"));
+        ("git", "checkout", "-B", "$branch", "origin/$branch"));
     die "Error checkouting latest change git repo at `$uri':\n$stderr" unless $res;
 
     (my $res1, $stdout, $stderr) = captureStdoutStderr(600,
