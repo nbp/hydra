@@ -335,18 +335,24 @@ sub fetchInputGit {
     (my $res, $stdout, $stderr) = captureStdoutStderr(600,
         ("git", "fetch", "origin", $branch));
     die "Error fetching latest change git repo at `$uri':\n$stderr" unless $res;
+
     (my $res, $stdout, $stderr) = captureStdoutStderr(600,
-        ("git", "checkout", "-B", "$branch", "origin/$branch"));
+        ("git", "rev-parse", "origin/$branch"));
+    die "Error getting revision number of Git branch '$branch' at `$uri':\n$stderr" unless $res;
+
+    my $revision = $stdout;
+    die unless $revision =~ /^[0-9a-fA-F]+$/;
+    die "Error getting a well-formated revision number of Git branch '$branch' at `$uri':\n$stdout" unless $res;
+
+    (my $res, $stdout, $stderr) = captureStdoutStderr(600,
+        ("git", "checkout", $remoteRev));
     die "Error checkouting latest change git repo at `$uri':\n$stderr" unless $res;
 
-    (my $res1, $stdout, $stderr) = captureStdoutStderr(600,
-        ("git", "ls-remote", $clonePath, $branch));
-    
-    die "Cannot get head revision of Git branch '$branch' at `$uri':\n$stderr" unless $res1 ;
+    (my $res, $stdout, $stderr) = captureStdoutStderr(600,
+        ("git", "checkout", "-B", "$branch", "origin/$branch"));
+    die "Error tracking latest change git repo at `$uri':\n$stderr" unless $res;
 
-    my ($first) = split /\n/, $stdout;
-    (my $revision, my $ref) = split ' ', $first;
-    die unless $revision =~ /^[0-9a-fA-F]+$/;
+    my $ref = "refs/heads/$branch";
 
     if (-f ".topdeps") {
         # This is a TopGit branch.  Fetch all the topic branches so
