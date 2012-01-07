@@ -323,20 +323,20 @@ sub fetchInputGit {
     mkpath(scmPath);
     my $clonePath = scmPath . "/" . sha256_hex($uri);
 
-    my $stdout; my $stderr;
+    my $stdout; my $stderr; my $res;
     if (! -d $clonePath) {
-        (my $res, $stdout, $stderr) = captureStdoutStderr(600,
+        ($res, $stdout, $stderr) = captureStdoutStderr(600,
             ("git", "clone", "--branch", $branch, $uri, $clonePath));
         die "Error cloning git repo at `$uri':\n$stderr" unless $res;
     }
 
     # git fetch + git checkout + check rev
     chdir $clonePath or die $!; # !!! urgh, shouldn't do a chdir
-    (my $res, $stdout, $stderr) = captureStdoutStderr(600,
+    ($res, $stdout, $stderr) = captureStdoutStderr(600,
         ("git", "fetch", "origin", $branch));
     die "Error fetching latest change git repo at `$uri':\n$stderr" unless $res;
 
-    (my $res, $stdout, $stderr) = captureStdoutStderr(600,
+    ($res, $stdout, $stderr) = captureStdoutStderr(600,
         ("git", "rev-parse", "origin/$branch"));
     die "Error getting revision number of Git branch '$branch' at `$uri':\n$stderr" unless $res;
 
@@ -344,11 +344,11 @@ sub fetchInputGit {
     die unless $revision =~ /^[0-9a-fA-F]+$/;
     die "Error getting a well-formated revision number of Git branch '$branch' at `$uri':\n$stdout" unless $res;
 
-    (my $res, $stdout, $stderr) = captureStdoutStderr(600,
+    ($res, $stdout, $stderr) = captureStdoutStderr(600,
         ("git", "checkout", $remoteRev));
     die "Error checkouting latest change git repo at `$uri':\n$stderr" unless $res;
 
-    (my $res, $stdout, $stderr) = captureStdoutStderr(600,
+    ($res, $stdout, $stderr) = captureStdoutStderr(600,
         ("git", "checkout", "-B", "$branch", "origin/$branch"));
     die "Error tracking latest change git repo at `$uri':\n$stderr" unless $res;
 
