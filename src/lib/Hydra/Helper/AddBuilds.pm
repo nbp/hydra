@@ -340,12 +340,12 @@ sub fetchInputGit {
         ("git", "rev-parse", "origin/$branch"));
     die "Error getting revision number of Git branch '$branch' at `$uri':\n$stderr" unless $res;
 
-    my $revision = $stdout;
+    my ($revision) = split /\n/, $stdout;
     die unless $revision =~ /^[0-9a-fA-F]+$/;
     die "Error getting a well-formated revision number of Git branch '$branch' at `$uri':\n$stdout" unless $res;
 
     ($res, $stdout, $stderr) = captureStdoutStderr(600,
-        ("git", "checkout", $remoteRev));
+        ("git", "checkout", $revision));
     die "Error checkouting latest change git repo at `$uri':\n$stderr" unless $res;
 
     ($res, $stdout, $stderr) = captureStdoutStderr(600,
