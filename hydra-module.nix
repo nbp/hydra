@@ -60,20 +60,7 @@ in
       };
       
       hydra = mkOption {
-        default =
-          let release = import ./release.nix {
-              nixpkgs = pkgs.path;
-              hydraSrc = {
-                outPath =
-                  pkgs.runCommand "hydra.tar" {} ''
-                    ${pkgs.git}/bin/git archive --remote ${./.} --prefix=hydra/  -o $out HEAD
-                  '';
-                gitTag = "HEAD";
-                revCount = 0;
-              };
-            };
-          in
-            release.build { inherit (pkgs.stdenv) system; };
+        default = ./result;
         description = ''
           Location of hydra
         '';
