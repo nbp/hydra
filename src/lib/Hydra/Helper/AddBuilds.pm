@@ -313,8 +313,8 @@ sub fetchInputSystemBuild {
 sub fetchInputGit {
     my ($db, $project, $jobset, $name, $value) = @_;
 
-    (my $uri, my $branch) = split ' ', $value;
-    $branch = defined $branch ? $branch : "master"; 
+    (my $uri, my $branch, my $expectVCS) = split ' ', $value;
+    $branch = defined $branch ? $branch : "master";
 
     my $timestamp = time;
     my $sha256;
@@ -379,18 +379,20 @@ sub fetchInputGit {
         print STDERR "checking out Git input from $uri\n";
         $ENV{"NIX_HASH_ALGO"} = "sha256";
         $ENV{"PRINT_PATH"} = "1";
-    
-        # Checked out code often wants to be able to run `git
-        # describe', e.g., code that uses Gnulib's `git-version-gen'
-        # script.  Thus, we leave `.git' in there.  Same for
-        # Subversion (e.g., libgcrypt's build system uses that.)
-        $ENV{"NIX_PREFETCH_GIT_LEAVE_DOT_GIT"} = "1";
-    
-        # Ask for a "deep clone" to allow "git describe" and similar
-        # tools to work.  See
-        # http://thread.gmane.org/gmane.linux.distributions.nixos/3569
-        # for a discussion.
-        $ENV{"NIX_PREFETCH_GIT_DEEP_CLONE"} = "1";
+
+        if (defined $expectVCS) {
+            # Checked out code often wants to be able to run `git
+            # describe', e.g., code that uses Gnulib's `git-version-gen'
+            # script.  Thus, we leave `.git' in there.  Same for
+            # Subversion (e.g., libgcrypt's build system uses that.)
+            $ENV{"NIX_PREFETCH_GIT_LEAVE_DOT_GIT"} = "1";
+
+            # Ask for a "deep clone" to allow "git describe" and similar
+            # tools to work.  See
+            # http://thread.gmane.org/gmane.linux.distributions.nixos/3569
+            # for a discussion.
+            $ENV{"NIX_PREFETCH_GIT_DEEP_CLONE"} = "1";
+        }
 
         (my $res, $stdout, $stderr) = captureStdoutStderr(600,
             ("nix-prefetch-git", $clonePath, $revision));
