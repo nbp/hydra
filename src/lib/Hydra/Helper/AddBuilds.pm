@@ -514,7 +514,7 @@ sub fetchInputHg {
 
     # init local hg clone
 
-    my $stdout; my $stderr;
+    my $stdout = ""; my $stderr = "";
 
     mkpath(scmPath);
     my $clonePath = scmPath . "/" . sha256_hex($uri);
