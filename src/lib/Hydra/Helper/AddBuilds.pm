@@ -323,7 +323,7 @@ sub fetchInputGit {
     mkpath(scmPath);
     my $clonePath = scmPath . "/" . sha256_hex($uri);
 
-    my $stdout; my $stderr; my $res;
+    my $stdout = ""; my $stderr = ""; my $res;
     if (! -d $clonePath) {
         ($res, $stdout, $stderr) = captureStdoutStderr(600,
             ("git", "clone", "--branch", $branch, $uri, $clonePath));
@@ -332,25 +332,19 @@ sub fetchInputGit {
 
     # git fetch + git checkout + check rev
     chdir $clonePath or die $!; # !!! urgh, shouldn't do a chdir
+
+    # Take care this does not update the working copy.
     ($res, $stdout, $stderr) = captureStdoutStderr(600,
-        ("git", "fetch", "origin", $branch));
+        ("git", "fetch", "-fu", "origin", "+$branch:$branch"));
     die "Error fetching latest change git repo at `$uri':\n$stderr" unless $res;
 
     ($res, $stdout, $stderr) = captureStdoutStderr(600,
-        ("git", "rev-parse", "origin/$branch"));
+        ("git", "rev-parse", "HEAD"));
     die "Error getting revision number of Git branch '$branch' at `$uri':\n$stderr" unless $res;
 
     my ($revision) = split /\n/, $stdout;
     die unless $revision =~ /^[0-9a-fA-F]+$/;
     die "Error getting a well-formated revision number of Git branch '$branch' at `$uri':\n$stdout" unless $res;
-
-    ($res, $stdout, $stderr) = captureStdoutStderr(600,
-        ("git", "checkout", $revision));
-    die "Error checkouting latest change git repo at `$uri':\n$stderr" unless $res;
-
-    ($res, $stdout, $stderr) = captureStdoutStderr(600,
-        ("git", "checkout", "-B", "$branch", "origin/$branch"));
-    die "Error tracking latest change git repo at `$uri':\n$stderr" unless $res;
 
     my $ref = "refs/heads/$branch";
 
@@ -394,7 +388,7 @@ sub fetchInputGit {
             $ENV{"NIX_PREFETCH_GIT_DEEP_CLONE"} = "1";
         }
 
-        (my $res, $stdout, $stderr) = captureStdoutStderr(600,
+        ($res, $stdout, $stderr) = captureStdoutStderr(600,
             ("nix-prefetch-git", $clonePath, $revision));
         die "Cannot check out Git repository branch '$branch' at `$uri':\n$stderr" unless $res;
 
