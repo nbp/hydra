@@ -338,6 +338,10 @@ sub fetchInputGit {
         ("git", "fetch", "-fu", "origin", "+$branch:$branch"));
     die "Error fetching latest change git repo at `$uri':\n$stderr" unless $res;
 
+    # ($res, $stdout, $stderr) = captureStdoutStderr(600,
+    #     ("git", "reset", "--hard", "HEAD"));
+    # die "Error updating latest change git repo at `$uri':\n$stderr" unless $res;
+
     ($res, $stdout, $stderr) = captureStdoutStderr(600,
         ("git", "rev-parse", "HEAD"));
     die "Error getting revision number of Git branch '$branch' at `$uri':\n$stderr" unless $res;
