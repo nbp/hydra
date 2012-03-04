@@ -686,7 +686,7 @@ sub captureStdoutStderr {
 
     if ($@) {
         die unless $@ eq "timeout\n";   # propagate unexpected errors
-        return (undef, undef, undef);
+        return (undef, "", "timeout\n");
     } else {
         return ($res, $stdout, $stderr);
     }
