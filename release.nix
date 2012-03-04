@@ -87,7 +87,7 @@ rec {
         description = "Build of Hydra on ${system}";
       };
 
-      succeedOnFailure = true;
+      succeedOnFailure = false;
       keepBuildDirectory = true;
     };
 
