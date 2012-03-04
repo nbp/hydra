@@ -518,7 +518,9 @@ sub fetchInputHg {
     my $clonePath = scmPath . "/" . sha256_hex($uri);
 
     if (! -d $clonePath) {
-        (my $res, $stdout, $stderr) = captureStdoutStderr(600,
+        # Increased timeout because this may take a while with huge
+        # repositories such as mozilla-central.
+        (my $res, $stdout, $stderr) = captureStdoutStderr(1200,
             ("hg", "clone", $uri, $clonePath));
         die "Error cloning mercurial repo at `$uri':\n$stderr" unless $res;
     }
