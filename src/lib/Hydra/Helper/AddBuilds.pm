@@ -355,7 +355,7 @@ sub fetchInputGit {
     if (-f ".topdeps") {
         # This is a TopGit branch.  Fetch all the topic branches so
         # that builders can run "tg patch" and similar.
-        (my $res, $stdout, $stderr) = captureStdoutStderr(600,
+        ($res, $stdout, $stderr) = captureStdoutStderr(600,
           ("tg", "remote", "--populate", "origin"));
 
         print STDERR "Warning: `tg remote --populate origin' failed:\n$stderr" unless $res;
